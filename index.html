@@ -3,108 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple FPS Game</title>
-    <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-        }
-        canvas {
-            display: block;
-        }
-        #info {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            color: white;
-            font-family: Arial, sans-serif;
-            font-size: 18px;
-        }
-        #instructions {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            font-family: Arial, sans-serif;
-            font-size: 24px;
-            text-align: center;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 20px;
-            border-radius: 10px;
-        }
-        #crosshair {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            font-size: 36px;
-            font-family: Arial, sans-serif;
-            opacity: 0.5;
-            pointer-events: none;
-            z-index: 10;
-        }
-        #gameOver {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-family: Arial, sans-serif;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.5s ease;
-            z-index: 100;
-        }
-        #gameOver.show {
-            opacity: 1;
-            pointer-events: all;
-        }
-        #gameOver h1 {
-            font-size: 48px;
-            margin-bottom: 20px;
-        }
-        #restartButton {
-            padding: 15px 30px;
-            font-size: 24px;
-            background: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        #restartButton:hover {
-            background: #45a049;
-        }
-    </style>
+    <title>DEADZONE — FPS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="info">
-        Score: <span id="score">0</span> |
-        Enemies: <span id="enemies">0</span> |
-        Health: <span id="health">100</span>
+    <!-- HUD -->
+    <div id="hud">
+        <div id="hud-top">
+            <div class="hud-block">
+                <span class="hud-label">SCORE</span>
+                <span class="hud-value" id="score">000000</span>
+            </div>
+            <div id="wave-display" class="hud-block center">
+                <span class="hud-label">WAVE</span>
+                <span class="hud-value" id="wave">01</span>
+            </div>
+            <div class="hud-block right">
+                <span class="hud-label">KILLS</span>
+                <span class="hud-value" id="kills">00</span>
+            </div>
+        </div>
+
+        <div id="hud-bottom">
+            <div id="health-section">
+                <div class="hud-label">HEALTH</div>
+                <div id="health-bar-wrap">
+                    <div id="health-bar"></div>
+                    <div id="health-bar-damage"></div>
+                </div>
+                <span id="health-num">100</span>
+            </div>
+
+            <div id="ammo-section">
+                <span id="ammo-count">12</span>
+                <span class="hud-label ammo-slash"> / </span>
+                <span id="ammo-reserve">48</span>
+                <div class="hud-label">AMMO</div>
+            </div>
+        </div>
+
+        <div id="kill-feed"></div>
+        <div id="hit-marker" class="hidden"></div>
+        <div id="damage-vignette"></div>
+        <div id="crosshair">
+            <div class="ch-line ch-top"></div>
+            <div class="ch-line ch-bottom"></div>
+            <div class="ch-line ch-left"></div>
+            <div class="ch-line ch-right"></div>
+            <div class="ch-dot"></div>
+        </div>
+        <div id="sprint-indicator"></div>
+        <div id="reloading-bar-wrap" class="hidden">
+            <div id="reloading-bar"></div>
+            <span>RELOADING</span>
+        </div>
     </div>
-    <div id="instructions">
-        Click to start<br>
-        WASD to move<br>
-        Left-click to shoot<br>
-        Right-click to aim<br>
-        Space to jump
+
+    <!-- Start Screen -->
+    <div id="start-screen">
+        <div id="start-content">
+            <div id="game-logo">DEAD<span>ZONE</span></div>
+            <div id="tagline">SURVIVE OR PERISH</div>
+            <div id="controls-grid">
+                <div class="ctrl"><kbd>WASD</kbd><span>Move</span></div>
+                <div class="ctrl"><kbd>MOUSE</kbd><span>Look</span></div>
+                <div class="ctrl"><kbd>LMB</kbd><span>Shoot</span></div>
+                <div class="ctrl"><kbd>RMB</kbd><span>Aim</span></div>
+                <div class="ctrl"><kbd>SPACE</kbd><span>Jump</span></div>
+                <div class="ctrl"><kbd>SHIFT</kbd><span>Sprint</span></div>
+                <div class="ctrl"><kbd>R</kbd><span>Reload</span></div>
+                <div class="ctrl"><kbd>C</kbd><span>Crouch</span></div>
+            </div>
+            <button id="startBtn">CLICK TO PLAY</button>
+        </div>
+        <div id="scanlines"></div>
     </div>
-    <div id="crosshair">+</div>
-    <div id="gameOver">
-        <h1>Game Over!</h1>
-        <p>Your score: <span id="finalScore">0</span></p>
-        <button id="restartButton">Restart Again?</button>
+
+    <!-- Game Over Screen -->
+    <div id="game-over-screen" class="hidden">
+        <div id="go-content">
+            <div id="go-title">YOU DIED</div>
+            <div id="go-stats">
+                <div class="stat-row"><span>FINAL SCORE</span><span id="go-score">0</span></div>
+                <div class="stat-row"><span>WAVE REACHED</span><span id="go-wave">1</span></div>
+                <div class="stat-row"><span>ENEMIES KILLED</span><span id="go-kills">0</span></div>
+            </div>
+            <button id="restartBtn">TRY AGAIN</button>
+        </div>
     </div>
+
+    <!-- Pause Screen -->
+    <div id="pause-screen" class="hidden">
+        <div id="pause-content">
+            <div class="pause-title">PAUSED</div>
+            <p>Click to resume</p>
+        </div>
+    </div>
+
+    <div id="wave-announce" class="hidden"></div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/PointerLockControls.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
